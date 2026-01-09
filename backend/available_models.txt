@@ -1,0 +1,150 @@
+C:\Users\Atif Ali Siddiqui\AppData\Roaming\Python\Python310\site-packages\google\api_core\_python_version_support.py:266: FutureWarning: You are using a Python version (3.10.10) which Google will stop supporting in new releases of google.api_core once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.api_core past that date.
+  warnings.warn(message, FutureWarning)
+E:\DEEP LEARNING PROJECT\Atifsiddiqui_App\backend\list_models.py:4: FutureWarning: 
+
+All support for the `google.generativeai` package has ended. It will no longer be receiving 
+updates or bug fixes. Please switch to the `google.genai` package as soon as possible.
+See README for more details:
+
+https://github.com/google-gemini/deprecated-generative-ai-python/blob/main/README.md
+
+  import google.generativeai as genai
+============================================================
+AVAILABLE GEMINI MODELS
+============================================================
+
+[OK] models/gemini-2.5-flash
+  Display Name: Gemini 2.5 Flash
+  Supported: generateContent, countTokens, createCachedContent, batchGenerateContent
+
+[OK] models/gemini-2.5-pro
+  Display Name: Gemini 2.5 Pro
+  Supported: generateContent, countTokens, createCachedContent, batchGenerateContent
+
+[OK] models/gemini-2.0-flash-exp
+  Display Name: Gemini 2.0 Flash Experimental
+  Supported: generateContent, countTokens, bidiGenerateContent
+
+[OK] models/gemini-2.0-flash
+  Display Name: Gemini 2.0 Flash
+  Supported: generateContent, countTokens, createCachedContent, batchGenerateContent
+
+[OK] models/gemini-2.0-flash-001
+  Display Name: Gemini 2.0 Flash 001
+  Supported: generateContent, countTokens, createCachedContent, batchGenerateContent
+
+[OK] models/gemini-2.0-flash-exp-image-generation
+  Display Name: Gemini 2.0 Flash (Image Generation) Experimental
+  Supported: generateContent, countTokens, bidiGenerateContent
+
+[OK] models/gemini-2.0-flash-lite-001
+  Display Name: Gemini 2.0 Flash-Lite 001
+  Supported: generateContent, countTokens, createCachedContent, batchGenerateContent
+
+[OK] models/gemini-2.0-flash-lite
+  Display Name: Gemini 2.0 Flash-Lite
+  Supported: generateContent, countTokens, createCachedContent, batchGenerateContent
+
+[OK] models/gemini-2.0-flash-lite-preview-02-05
+  Display Name: Gemini 2.0 Flash-Lite Preview 02-05
+  Supported: generateContent, countTokens, createCachedContent, batchGenerateContent
+
+[OK] models/gemini-2.0-flash-lite-preview
+  Display Name: Gemini 2.0 Flash-Lite Preview
+  Supported: generateContent, countTokens, createCachedContent, batchGenerateContent
+
+[OK] models/gemini-exp-1206
+  Display Name: Gemini Experimental 1206
+  Supported: generateContent, countTokens, createCachedContent, batchGenerateContent
+
+[OK] models/gemini-2.5-flash-preview-tts
+  Display Name: Gemini 2.5 Flash Preview TTS
+  Supported: countTokens, generateContent
+
+[OK] models/gemini-2.5-pro-preview-tts
+  Display Name: Gemini 2.5 Pro Preview TTS
+  Supported: countTokens, generateContent, batchGenerateContent
+
+[OK] models/gemma-3-1b-it
+  Display Name: Gemma 3 1B
+  Supported: generateContent, countTokens
+
+[OK] models/gemma-3-4b-it
+  Display Name: Gemma 3 4B
+  Supported: generateContent, countTokens
+
+[OK] models/gemma-3-12b-it
+  Display Name: Gemma 3 12B
+  Supported: generateContent, countTokens
+
+[OK] models/gemma-3-27b-it
+  Display Name: Gemma 3 27B
+  Supported: generateContent, countTokens
+
+[OK] models/gemma-3n-e4b-it
+  Display Name: Gemma 3n E4B
+  Supported: generateContent, countTokens
+
+[OK] models/gemma-3n-e2b-it
+  Display Name: Gemma 3n E2B
+  Supported: generateContent, countTokens
+
+[OK] models/gemini-flash-latest
+  Display Name: Gemini Flash Latest
+  Supported: generateContent, countTokens, createCachedContent, batchGenerateContent
+
+[OK] models/gemini-flash-lite-latest
+  Display Name: Gemini Flash-Lite Latest
+  Supported: generateContent, countTokens, createCachedContent, batchGenerateContent
+
+[OK] models/gemini-pro-latest
+  Display Name: Gemini Pro Latest
+  Supported: generateContent, countTokens, createCachedContent, batchGenerateContent
+
+[OK] models/gemini-2.5-flash-lite
+  Display Name: Gemini 2.5 Flash-Lite
+  Supported: generateContent, countTokens, createCachedContent, batchGenerateContent
+
+[OK] models/gemini-2.5-flash-image-preview
+  Display Name: Nano Banana
+  Supported: generateContent, countTokens, batchGenerateContent
+
+[OK] models/gemini-2.5-flash-image
+  Display Name: Nano Banana
+  Supported: generateContent, countTokens, batchGenerateContent
+
+[OK] models/gemini-2.5-flash-preview-09-2025
+  Display Name: Gemini 2.5 Flash Preview Sep 2025
+  Supported: generateContent, countTokens, createCachedContent, batchGenerateContent
+
+[OK] models/gemini-2.5-flash-lite-preview-09-2025
+  Display Name: Gemini 2.5 Flash-Lite Preview Sep 2025
+  Supported: generateContent, countTokens, createCachedContent, batchGenerateContent
+
+[OK] models/gemini-3-pro-preview
+  Display Name: Gemini 3 Pro Preview
+  Supported: generateContent, countTokens, createCachedContent, batchGenerateContent
+
+[OK] models/gemini-3-flash-preview
+  Display Name: Gemini 3 Flash Preview
+  Supported: generateContent, countTokens, createCachedContent, batchGenerateContent
+
+[OK] models/gemini-3-pro-image-preview
+  Display Name: Nano Banana Pro
+  Supported: generateContent, countTokens, batchGenerateContent
+
+[OK] models/nano-banana-pro-preview
+  Display Name: Nano Banana Pro
+  Supported: generateContent, countTokens, batchGenerateContent
+
+[OK] models/gemini-robotics-er-1.5-preview
+  Display Name: Gemini Robotics-ER 1.5 Preview
+  Supported: generateContent, countTokens
+
+[OK] models/gemini-2.5-computer-use-preview-10-2025
+  Display Name: Gemini 2.5 Computer Use Preview 10-2025
+  Supported: generateContent, countTokens
+
+[OK] models/deep-research-pro-preview-12-2025
+  Display Name: Deep Research Pro Preview (Dec-12-2025)
+  Supported: generateContent, countTokens

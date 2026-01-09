@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+    
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atif.AI PRO - Skin Health Interface</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React Dependencies -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Lucide Icons Library -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @keyframes scan {
+            0% {
+                top: 0;
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 1;
+            }
+
+            90% {
+                opacity: 1;
+            }
+
+            100% {
+                top: 100%;
+                opacity: 0;
+            }
+        }
+
+        /* Anti-gravity Floating Animation (No 3D Tilt) */
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-12px);
+            }
+        }
+
+        .floating-card {
+            animation: float 5s ease-in-out infinite;
+        }
+
+        .scrollbar-custom::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .scrollbar-custom::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .scrollbar-custom::-webkit-scrollbar-thumb {
+            background: #10b981;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+
+<body class="bg-[#0b0d11] overflow-hidden">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useRef, useEffect } = React;
+
+        const LucideIcon = ({ name, size = 20, className = "" }) => {
+            useEffect(() => {
+                if (window.lucide) {
+                    window.lucide.createIcons();
+                }
+            }, [name]);
+            return <i data-lucide={name} className={className} style={{ width: size, height: size }}></i>;
+        };
+
+        /**
+         * CALL GEMINI BACKEND
+         * This function should point to your real backend URL.
+         */
+        const callGeminiBackend = async (userInput, type = 'text', sessionId = null) => {
+            const API_URL = 'http://localhost:8000';
+
+            try {
+                if (type === 'image') {
+                    const formData = new FormData();
+                    formData.append('file', userInput);
+                    const response = await fetch(`${API_URL}/predict`, {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json().catch(() => ({ detail: 'Unknown error' }));
+                        console.error('Predict API Error:', response.status, errorData);
+                        return {
+                            prediction: 'Error',
+                            confidence: 0,
+                            severity_level: 'unknown',  
+                            recommendation: `API Error (${response.status}): ${errorData.detail || 'Failed to process image'}`,
+                            session_id: null
+                        };
+                    }
+
+                    return await response.json();
+                } else {
+                    const response = await fetch(`${API_URL}/chat`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            message: userInput,
+                            session_id: sessionId
+                        })
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json().catch(() => ({ detail: 'Unknown error' }));
+                        console.error('Chat API Error:', response.status, errorData);
+                        return {
+                            text: `API Error (${response.status}): ${errorData.detail || 'Failed to get response'}`,
+                            session_id: sessionId
+                        };
+                    }
+
+                    const data = await response.json();
+                    return { text: data.response, session_id: data.session_id };
+                }
+            } catch (err) {
+                console.error("API Error:", err);
+                return type === 'image'
+                    ? {
+                        prediction: 'Connection Error',
+                        confidence: 0,
+                        severity_level: 'unknown',
+                        recommendation: "Could not connect to the Atif.AI PRO backend server. Please ensure the server is running.",
+                        session_id: null
+                    }
+                    : { text: "Error: Could not connect to the Atif.AI PRO backend server." };
+            }
+        };
+
+        const App = () => {
+            const [messages, setMessages] = useState([
+                {
+                    id: 1,
+                    type: 'bot',
+                    text: "Atif.AI PRO Neural Interface Online. Upload a skin image or ask a question for analysis.",
+                    timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                }
+            ]);
+            const [inputText, setInputText] = useState('');
+            const [isTyping, setIsTyping] = useState(false);
+            const [currentSessionId, setCurrentSessionId] = useState(null);
+
+            const messagesEndRef = useRef(null);
+            const fileInputRef = useRef(null);
+
+            useEffect(() => {
+                messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+            }, [messages, isTyping]);
+
+            const handleSendMessage = async () => {
+                if (!inputText.trim()) return;
+                const userMsg = { id: Date.now(), type: 'user', text: inputText, timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) };
+                setMessages(prev => [...prev, userMsg]);
+                setInputText('');
+                setIsTyping(true);
+
+                const data = await callGeminiBackend(inputText, 'text', currentSessionId);
+
+                if (data.session_id && !currentSessionId) {
+                    setCurrentSessionId(data.session_id);
+                }
+
+                setMessages(prev => [...prev, {
+                    id: Date.now() + 1,
+                    type: 'bot',
+                    text: data.text,
+                    timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                }]);
+                setIsTyping(false);
+            };
+
+            const processImage = async (file) => {
+                if (!file || !file.type.startsWith('image/')) return;
+                const imageUrl = URL.createObjectURL(file);
+
+                setMessages(prev => [...prev, {
+                    id: Date.now(),
+                    type: 'user',
+                    text: "[Image Analysis Request]",
+                    image: imageUrl,
+                    timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                }]);
+
+                setIsTyping(true);
+
+                const data = await callGeminiBackend(file, 'image');
+                if (data.session_id) {
+                    setCurrentSessionId(data.session_id);
+                }
+
+                // Handle nested response from backend or flat response from error handler
+                const analysisText = data.gemini_analysis || data.recommendation || "Analysis complete.";
+                const modelData = data.model_response || data;
+
+                setMessages(prev => [...prev, {
+                    id: Date.now() + 1,
+                    type: 'bot',
+                    text: analysisText,
+                    isPrediction: true,
+                    data: modelData,
+                    timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                }]);
+                setIsTyping(false);
+            };
+
+            return (
+                <div className="min-h-screen w-full flex items-center justify-center p-4 relative font-sans">
+                    <div className="absolute inset-0 z-0 bg-[#0b0d11]">
+                        <div className="absolute top-1/4 left-1/4 w-[400px] h-[400px] bg-emerald-500/5 rounded-full blur-[100px]" />
+                    </div>
+
+                    <div className="w-full max-w-4xl h-[85vh] z-10">
+                        <div className="w-full h-full bg-[#151921]/90 backdrop-blur-xl rounded-[2.5rem] border border-white/5 shadow-2xl flex flex-col overflow-hidden floating-card">
+
+                            <header className="h-20 px-8 border-b border-white/5 flex items-center justify-between bg-white/5">
+                                <div className="flex items-center gap-4">
+                                    <div className="bg-emerald-500 p-2.5 rounded-xl shadow-lg shadow-emerald-500/20">
+                                        <LucideIcon name="activity" className="text-white" size={20} />
+                                    </div>
+                                    <div>
+                                        <h1 className="text-white font-bold text-lg tracking-tight">ATIF.AI <span className="text-emerald-400">PRO</span></h1>
+                                        <p className="text-[10px] text-slate-500 uppercase tracking-widest font-mono">Vision & Skin Health</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-2 px-3 py-1 bg-black/30 rounded-full border border-white/5">
+                                    <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                                    <span className="text-[9px] text-emerald-500 font-bold uppercase">System Active</span>
+                                </div>
+                            </header>
+
+                            <div className="flex-1 overflow-y-auto p-8 space-y-6 scrollbar-custom">
+                                {messages.map(msg => (
+                                    <div key={msg.id} className={`flex gap-4 ${msg.type === 'user' ? 'flex-row-reverse' : ''} animate-in fade-in duration-500`}>
+                                        <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 border ${msg.type === 'bot' ? 'bg-slate-900 border-emerald-500/30 text-emerald-400 shadow-xl' : 'bg-emerald-600 border-emerald-500 text-white shadow-xl'}`}>
+                                            {msg.type === 'bot' ? <LucideIcon name="activity" size={18} /> : <LucideIcon name="user" size={18} />}
+                                        </div>
+                                        <div className={`max-w-[80%] ${msg.type === 'user' ? 'text-right' : 'text-left'}`}>
+                                            <div className={`p-5 rounded-[1.5rem] text-[15px] leading-relaxed border transition-all shadow-lg ${msg.type === 'bot' ? 'bg-slate-800/40 border-white/5 text-slate-100 rounded-tl-none' : 'bg-emerald-600 border-emerald-500 text-white rounded-tr-none'}`}>
+                                                {msg.image && <img src={msg.image} className="w-full max-h-64 object-cover rounded-2xl mb-4 border border-white/10" />}
+                                                <p className="whitespace-pre-line">{msg.text}</p>
+                                                {msg.isPrediction && (
+                                                    <div className="mt-4 bg-black/30 border border-emerald-500/20 rounded-2xl p-5">
+                                                        <div className="flex justify-between items-center mb-3">
+                                                            <span className="text-emerald-400 font-bold text-[10px] uppercase tracking-widest">Analysis Matrix</span>
+                                                            <span className="text-[10px] text-white/50">MATCH: {(msg.data.confidence * 100).toFixed(1)}%</span>
+                                                        </div>
+                                                        <div className="space-y-2 text-[13px]">
+                                                            <div className="flex justify-between"><span className="text-slate-500">Classification:</span><span className="text-white font-bold">{msg.data.prediction}</span></div>
+                                                            <div className="flex justify-between"><span className="text-slate-500">Risk Profile:</span><span className={`font-bold ${msg.data.severity_level === 'high' ? 'text-red-400' : 'text-emerald-400'}`}>{msg.data.severity_level?.toUpperCase()}</span></div>
+                                                        </div>
+                                                        <p className="mt-4 pt-4 border-t border-white/5 text-[12px] text-slate-400 italic font-light">"{msg.data.recommendation}"</p>
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <span className="text-[10px] text-slate-600 mt-2 block px-1 font-mono">{msg.timestamp}</span>
+                                        </div>
+                                    </div>
+                                ))}
+                                {isTyping && (
+                                    <div className="flex gap-2 items-center ml-14 text-emerald-500 text-[10px] font-bold uppercase tracking-[0.3em]">
+                                        <div className="flex gap-1.5">
+                                            <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-bounce" />
+                                            <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-bounce [animation-delay:0.2s]" />
+                                            <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-bounce [animation-delay:0.4s]" />
+                                        </div>
+                                        Processing...
+                                    </div>
+                                )}
+                                <div ref={messagesEndRef} />
+                            </div>
+
+                            <footer className="p-6 bg-black/20 border-t border-white/5 backdrop-blur-xl">
+                                <div className="flex gap-3 max-w-4xl mx-auto">
+                                    <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={(e) => processImage(e.target.files[0])} />
+                                    <button onClick={() => fileInputRef.current.click()} className="h-14 w-14 flex items-center justify-center rounded-2xl bg-slate-800 border border-white/10 text-slate-400 hover:text-emerald-400 hover:border-emerald-500/50 transition-all">
+                                        <LucideIcon name="camera" size={24} />
+                                    </button>
+                                    <div className="flex-1 relative">
+                                        <input
+                                            type="text"
+                                            value={inputText}
+                                            onChange={(e) => setInputText(e.target.value)}
+                                            onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+                                            placeholder="Ask Gemini about your skin..."
+                                            className="w-full h-14 bg-slate-900/50 border border-white/10 rounded-2xl px-6 text-[14px] text-white focus:outline-none focus:border-emerald-500/50 transition-all shadow-inner"
+                                        />
+                                        <button onClick={handleSendMessage} className="absolute right-2 top-1/2 -translate-y-1/2 h-10 w-10 flex items-center justify-center rounded-xl bg-emerald-600 text-white hover:bg-emerald-500 transition-all shadow-lg shadow-emerald-600/20">
+                                            <LucideIcon name="send" size={18} />
+                                        </button>
+                                    </div>
+                                </div>
+                                <div className="text-center mt-4">
+                                    <span className="text-[8px] text-slate-700 tracking-[0.5em] uppercase font-black">Secure Neural Pipeline v4.0</span>
+                                </div>
+                            </footer>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+
+</html>
