@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-    
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,6 +13,8 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <!-- Lucide Icons Library -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Runtime Configuration -->
+    <script src="config.js"></script>
     <style>
         @keyframes scan {
             0% {
@@ -86,7 +88,8 @@
          * This function should point to your real backend URL.
          */
         const callGeminiBackend = async (userInput, type = 'text', sessionId = null) => {
-            const API_URL = 'http://localhost:8000';
+            // Read from runtime config, fallback to localhost for safety
+            const API_URL = window.env?.API_URL || 'http://localhost:8000';
 
             try {
                 if (type === 'image') {
@@ -96,6 +99,7 @@
                         method: 'POST',
                         body: formData
                     });
+                    console.log(response);
 
                     if (!response.ok) {
                         const errorData = await response.json().catch(() => ({ detail: 'Unknown error' }));
@@ -103,7 +107,7 @@
                         return {
                             prediction: 'Error',
                             confidence: 0,
-                            severity_level: 'unknown',  
+                            severity_level: 'unknown',
                             recommendation: `API Error (${response.status}): ${errorData.detail || 'Failed to process image'}`,
                             session_id: null
                         };
