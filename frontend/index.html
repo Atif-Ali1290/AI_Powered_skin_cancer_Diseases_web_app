@@ -89,7 +89,7 @@
          */
         const callGeminiBackend = async (userInput, type = 'text', sessionId = null) => {
             // Read from runtime config, fallback to localhost for safety
-            const API_URL = window.env?.API_URL || 'http://localhost:8000'||"https://my-backend-service-qqpz.onrender.com/";
+            const API_URL = window.env?.API_URL || "https://my-backend-service-qqpz.onrender.com";
 
             try {
                 if (type === 'image') {
