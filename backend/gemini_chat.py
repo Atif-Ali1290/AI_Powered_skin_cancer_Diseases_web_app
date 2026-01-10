@@ -68,10 +68,12 @@ Style: High-tech, clinical, supportive, and informative."""
         
         response_text = response.text
         
-        disclaimer = "\n\nI am an AI assistant, and this information is based on our automated model's analysis. This does not constitute a clinical diagnosis. For any skin concerns, especially regarding potential malignancy, it is mandatory to consult a professional Dermatologist for a physical examination."
+        # Core disclaimer text (without leading newlines) for checking presence
+        disclaimer_core = "I am an AI assistant, and this information is based on our automated model's analysis. This does not constitute a clinical diagnosis. For any skin concerns, especially regarding potential malignancy, it is mandatory to consult a professional Dermatologist for a physical examination."
         
-        if disclaimer not in response_text:
-            response_text += disclaimer
+        # Only append if the core message is not already present in the response
+        if disclaimer_core not in response_text:
+            response_text += f"\n\n{disclaimer_core}"
             
         return response_text
 
